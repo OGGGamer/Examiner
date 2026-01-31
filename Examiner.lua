@@ -173,6 +173,46 @@ local function moduleTracePath(tb)
 end
 
 --[[
+	#{GetCallingScript}
+	
+	Internal: Converts debug info into a physical Script object
+]]
+local function getCallingScript()
+	local source = debug.info(4, "s") or debug.info(3, "s")
+
+	if not source or source == "=[C]" then 
+		local mock = {
+			Name = "Unknown Script",
+			ClassName = "Script",
+			Parent = game
+		}
+		
+		function mock:GetFullName()
+			return "Unknown (External/C-Stack)"
+		end
+		
+		return mock
+	end
+
+	local cleanPath = source:gsub("^%.", ""):gsub("^game%.", ""):gsub("^project%.", "")
+	local segments = cleanPath:split(".")
+	local current = game
+
+	for _, name in ipairs(segments) do
+		local nextObj = current:FindFirstChild(name)
+		if nextObj then
+			current = nextObj
+		else
+			local pathMock = { Name = name }
+			function pathMock:GetFullName() return cleanPath end
+			return pathMock
+		end
+	end
+
+	return current
+end
+
+--[[
     Format examine report
 
     Public: format a detailed examine report for `target`
@@ -180,44 +220,60 @@ end
     [Open Documentation](https://ogggamer.github.io/Examiner/#core)
 ]]
 function Examiner.Report(target, unexpected, opts)
-    opts = opts or {}
-    local tb = debug.traceback("", 3)
-    local modules = moduleTracePath(tb) or {}
-    local header = examHeader("EXAMINER")
-    local lines = {header}
-    table.insert(lines, string.format("[Source]: %s", (opts.source or "<unknown>")))
-    table.insert(lines, string.format("[TracePath]: %s", table.concat(modules, " -> ")))
-    table.insert(lines, string.format("[Target]: %s", type(target)))
-    if unexpected then
-        table.insert(lines, string.format("[Unexpected]: %s", tostring(unexpected)))
-    end
-    -- deep inspect summary for some types
-    if type(target) == "table" then
-        table.insert(lines, "[Deep Inspect]:")
-        local n = 0
-        for k,v in pairs(target) do
-            n = n + 1
-            if n > 20 then break end
-            table.insert(lines, string.format("    - %s: %s", tostring(k), type(v)))
-        end
-    elseif HAS_ROBLOX and typeof(target) == "Instance" then
-        table.insert(lines, string.format("[Instance]: %s (%s)", target.Name or "", target.ClassName or ""))
-    end
-    -- snapshot/diff if available
-    if opts.snapshotId then
-        local diffs = Examiner.DiffSnapshots(opts.snapshotId, target)
-        if diffs and #diffs > 0 then
-            table.insert(lines, "[Diff]:")
-            for _,d in ipairs(diffs) do table.insert(lines, "    " .. d) end
-        else
-            table.insert(lines, "[Diff]: No differences detected")
-        end
-    end
-    if opts.showMissingCatcher then
-        table.insert(lines, "The error catcher wasn't used.")
-    end
-    table.insert(lines, string.rep("-", 93))
-    return table.concat(lines, "\n")
+	opts = opts or {}
+
+	local tb = debug.traceback("", 3)
+	local callerObj = getCallingScript()
+	local traceData = moduleTracePath(tb) or {}
+
+	local callerName = callerObj and callerObj:GetFullName() or "Unknown Script"
+
+	local header = examHeader("EXAMINER")
+	local lines = {header}
+
+	table.insert(lines, string.format("[Source]: %s", (opts.source or "<unknown>")))
+	table.insert(lines, string.format("[Triggered By]: %s", callerName))
+
+	if #traceData > 0 then
+		table.insert(lines, string.format("[TracePath]: %s", table.concat(traceData, " -> ")))
+	end
+
+	table.insert(lines, string.format("[Target]: %s", type(target)))
+
+	if unexpected then
+		table.insert(lines, string.format("[Unexpected]: %s", tostring(unexpected)))
+	end
+
+	if type(target) == "table" then
+		table.insert(lines, "[Deep Inspect]:")
+		local n = 0
+		for k, v in pairs(target) do
+			n = n + 1
+			if n > 20 then break end
+			table.insert(lines, string.format("    - %s: %s", tostring(k), type(v)))
+		end
+	elseif HAS_ROBLOX and typeof(target) == "Instance" then
+		table.insert(lines, string.format("[Instance]: %s (%s)", target.Name or "", target.ClassName or ""))
+	end
+	
+	if opts.snapshotId then
+		local diffs = Examiner.DiffSnapshots(opts.snapshotId, target)
+		if diffs and #diffs > 0 then
+			table.insert(lines, "[Diff]:")
+			for _, d in ipairs(diffs) do 
+				table.insert(lines, "    " .. d) 
+			end
+		else
+			table.insert(lines, "[Diff]: No differences detected")
+		end
+	end
+
+	if opts.showMissingCatcher then
+		table.insert(lines, "The error catcher wasn't used.")
+	end
+
+	table.insert(lines, string.rep("-", 93))
+	return table.concat(lines, "\n")
 end
 
 -- Informer: promise-like wrapper for operations
