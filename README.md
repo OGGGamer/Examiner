@@ -10,7 +10,7 @@ Let's say roblox's API error's or your datastore fails; it will catch that.
 You can see how much this can be useful.
 
 Output:
-``
+```
   ---------------------------------------------------------------------------------------------
                                             EXAMINER
   ---------------------------------------------------------------------------------------------
@@ -25,4 +25,4 @@ Output:
   [Source]: <unknown>
   [Triggered By]: console
   [Target]: string
-``
+```
