@@ -96,6 +96,8 @@
     <a href="#informer" class="sidebar-link">Informer Class</a>
     <a href="#requires" class="sidebar-link">Require Watchers</a>
     <a href="#reactive" class="sidebar-link">Reactive Tools</a>
+    <a href="#world-safety" class="sidebar-link">World & Logic Safety</a>
+    <a href="#advanced-tools" class="sidebar-link">Advanced Tools</a>
 </nav>
 
 <div class="main-content">
@@ -178,6 +180,208 @@ Examiner.<span class="func">Dispatch</span>(myReport)</code></pre>
             <tr><td><code>Signal</code></td><td><span class="type-tag">table</span></td><td><span class="badge noyield">.noyield</span></td><td>Internal pub/sub system for Examiner events.</td></tr>
         </tbody>
     </table>
+
+    <h2 id="world-safety">World & Logic Safety</h2>
+    <table>
+        <thead><tr><th>Member</th><th>Returns</th><th>Behavior</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td><a href="#ex-protect" class="method-link">Protect</a></td><td><span class="type-tag">boolean</span></td><td><span class="badge noyield">.noyield</span></td><td>Validates table types against a schema.</td></tr>
+            <tr><td><a href="#ex-trackinstance" class="method-link">TrackInstance</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Reports property changes on physical Parts.</td></tr>
+            <tr><td><a href="#ex-adorn" class="method-link">Adorn</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Creates 3D visual indicators for errors in-game.</td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="advanced-tools">Advanced Tools</h2>
+    <table>
+        <thead>
+            <tr><th>Member</th><th>Returns</th><th>Behavior</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><a href="#ex-snapshothistory" class="method-link">SnapshotHistory</a></td><td><span class="type-tag">number</span></td><td><span class="badge noyield">.noyield</span></td><td>Rolling buffer of last 10 states for time travel diffs.</td></tr>
+            <tr><td><a href="#ex-diffhistory" class="method-link">DiffHistory</a></td><td><span class="type-tag">table?</span></td><td><span class="badge noyield">.noyield</span></td><td>Diff against a historical snapshot index.</td></tr>
+            <tr><td><a href="#ex-interceptremote" class="method-link">InterceptRemote</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Wraps RemoteEvents to log traffic size/frequency and flag oversized payloads.</td></tr>
+            <tr><td><a href="#ex-watchleak" class="method-link">WatchLeak</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Monitors table growth over time for potential memory leaks.</td></tr>
+            <tr><td><a href="#ex-watchinstancelifecycle" class="method-link">WatchInstanceLifecycle</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Alerts on destroyed instances with lingering references.</td></tr>
+            <tr><td><a href="#ex-heatmapadorn" class="method-link">HeatmapAdorn</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Colors parts based on error heat (red=hot, blue=cold).</td></tr>
+            <tr><td><a href="#ex-mapdependencies" class="method-link">MapDependencies</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Analyzes require data for dependency graphs.</td></tr>
+            <tr><td><a href="#ex-conditionalbreakpoint" class="method-link">ConditionalBreakpoint</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Pauses execution on condition met.</td></tr>
+            <tr><td><a href="#ex-sanitizeenvironment" class="method-link">SanitizeEnvironment</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Removes stale variables from environments.</td></tr>
+            <tr><td><a href="#ex-regressiontest" class="method-link">RegressionTest</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Runs functions and checks against expected snapshots.</td></tr>
+            <tr><td><a href="#ex-monitorcollisions" class="method-link">MonitorCollisions</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Tracks touch density on parts.</td></tr>
+            <tr><td><a href="#ex-synctoweb" class="method-link">SyncToWeb</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Batches JSON reports and posts to a URL.</td></tr>
+            <tr><td><a href="#ex-locktable" class="method-link">LockTable</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Locks tables to prevent modifications.</td></tr>
+            <tr><td><a href="#ex-getinputbuffer" class="method-link">GetInputBuffer</a></td><td><span class="type-tag">table</span></td><td><span class="badge noyield">.noyield</span></td><td>Returns recorded player inputs (client-side).</td></tr>
+            <tr><td><a href="#ex-searchtracked" class="method-link">SearchTracked</a></td><td><span class="type-tag">table</span></td><td><span class="badge noyield">.noyield</span></td><td>Searches snapshot data for values/keys.</td></tr>
+            <tr><td><a href="#ex-strictenums" class="method-link">StrictEnums</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Lock tables to only allow specific string values.</td></tr>
+            <tr><td><a href="#ex-antiglobalpollution" class="method-link">AntiGlobalPollution</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Watch _G and flag non-prefixed variables.</td></tr>
+            <tr><td><a href="#ex-recursivelockdown" class="method-link">RecursiveLockdown</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Deeply freeze nested configuration trees.</td></tr>
+            <tr><td><a href="#ex-valueclampingsentinel" class="method-link">ValueClampingSentinel</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Watch numbers and report out-of-range values.</td></tr>
+            <tr><td><a href="#ex-nullpointermocking" class="method-link">NullPointerMocking</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Return dummy objects instead of nil.</td></tr>
+            <tr><td><a href="#ex-typeswitchlogger" class="method-link">TypeSwitchLogger</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Log type changes of variables.</td></tr>
+            <tr><td><a href="#ex-constantguard" class="method-link">ConstantGuard</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Protect specific keys in tables.</td></tr>
+            <tr><td><a href="#ex-arrayonlyenforcement" class="method-link">ArrayOnlyEnforcement</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Ensure tables remain arrays.</td></tr>
+            <tr><td><a href="#ex-circularreferencedetector" class="method-link">CircularReferenceDetector</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Flag circular references in tables.</td></tr>
+            <tr><td><a href="#ex-jsonschemavalidator" class="method-link">JSONSchemaValidator</a></td><td><span class="type-tag">boolean</span></td><td><span class="badge noyield">.noyield</span></td><td>Validate tables against JSON schema.</td></tr>
+            <tr><td><a href="#ex-autodocumentationgenerator" class="method-link">AutoDocumentationGenerator</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Build data maps from snapshots.</td></tr>
+            <tr><td><a href="#ex-moduledependencygraph" class="method-link">ModuleDependencyGraph</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Map module dependencies.</td></tr>
+            <tr><td><a href="#ex-crossserverlogsync" class="method-link">CrossServerLogSync</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Sync logs across servers.</td></tr>
+            <tr><td><a href="#ex-environmentcomparer" class="method-link">EnvironmentComparer</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Diff server vs client states.</td></tr>
+            <tr><td><a href="#ex-executiontimer" class="method-link">ExecutionTimer</a></td><td><span class="type-tag">function</span></td><td><span class="badge noyield">.noyield</span></td><td>Wrap functions to log execution time.</td></tr>
+            <tr><td><a href="#ex-todocommentextractor" class="method-link">TodoCommentExtractor</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Scan scripts for TODO comments.</td></tr>
+            <tr><td><a href="#ex-heartbeatbudgeting" class="method-link">HeartbeatBudgeting</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Warn on excessive frame time usage.</td></tr>
+            <tr><td><a href="#ex-tablegrowthrate" class="method-link">TableGrowthRate</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Log table growth per second.</td></tr>
+            <tr><td><a href="#ex-remoteratelimiter" class="method-link">RemoteRateLimiter</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Flag high-frequency remote calls.</td></tr>
+            <tr><td><a href="#ex-memorysnapshotdiffing" class="method-link">MemorySnapshotDiffing</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Diff memory growth over time.</td></tr>
+            <tr><td><a href="#ex-connectionleaker" class="method-link">ConnectionLeaker</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Detect signal leaks.</td></tr>
+            <tr><td><a href="#ex-heavyloopdetector" class="method-link">HeavyLoopDetector</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Track long-running loops.</td></tr>
+            <tr><td><a href="#ex-instancecounttracker" class="method-link">InstanceCountTracker</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Snapshot workspace instance counts.</td></tr>
+            <tr><td><a href="#ex-debrissentinel" class="method-link">DebrisSentinel</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Watch debris service.</td></tr>
+            <tr><td><a href="#ex-garbagecollectionping" class="method-link">GarbageCollectionPing</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Track weak table clearing.</td></tr>
+            <tr><td><a href="#ex-inputhistoryplayback" class="method-link">InputHistoryPlayback</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Record input history.</td></tr>
+            <tr><td><a href="#ex-apiversionchecker" class="method-link">APIVersionChecker</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Check module versions.</td></tr>
+            <tr><td><a href="#ex-serveragewarning" class="method-link">ServerAgeWarning</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Alert on long-running servers.</td></tr>
+            <tr><td><a href="#ex-playerpingsnapshot" class="method-link">PlayerPingSnapshot</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Record player ping on dispatch.</td></tr>
+            <tr><td><a href="#ex-datastorebudgettracker" class="method-link">DataStoreBudgetTracker</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Warn on DataStore limits.</td></tr>
+            <tr><td><a href="#ex-thirdpartyapiguard" class="method-link">ThirdPartyAPIGuard</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Log API errors.</td></tr>
+            <tr><td><a href="#ex-assetloadobserver" class="method-link">AssetLoadObserver</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Report slow asset loads.</td></tr>
+            <tr><td><a href="#ex-crossgameteleportlog" class="method-link">CrossGameTeleportLog</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Record teleport data.</td></tr>
+            <tr><td><a href="#ex-serverregionlogger" class="method-link">ServerRegionLogger</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Group errors by region.</td></tr>
+            <tr><td><a href="#ex-statemachinevalidator" class="method-link">StateMachineValidator</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Validate state transitions.</td></tr>
+            <tr><td><a href="#ex-undoredobridge" class="method-link">UndoRedoBridge</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Use snapshots for undo/redo.</td></tr>
+            <tr><td><a href="#ex-dependencyinjectionguard" class="method-link">DependencyInjectionGuard</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Ensure required services.</td></tr>
+            <tr><td><a href="#ex-eventchaintracer" class="method-link">EventChainTracer</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Log event breadcrumbs.</td></tr>
+            <tr><td><a href="#ex-metatablespy" class="method-link">MetatableSpy</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Report metatable access.</td></tr>
+            <tr><td><a href="#ex-recursivetypechecker" class="method-link">RecursiveTypeChecker</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Deep type checking.</td></tr>
+            <tr><td><a href="#ex-deltatimemonitor" class="method-link">DeltaTimeMonitor</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Track frame rate consistency.</td></tr>
+            <tr><td><a href="#ex-prioritydispatch" class="method-link">PriorityDispatch</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Sort logs by priority.</td></tr>
+            <tr><td><a href="#ex-automaticfixer" class="method-link">AutomaticFixer</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Auto-inject defaults.</td></tr>
+            <tr><td><a href="#ex-logicblackbox" class="method-link">LogicBlackBox</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Snapshot on crash.</td></tr>
+            <tr><td><a href="#ex-scriptenvironmentdiff" class="method-link">ScriptEnvironmentDiff</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Check environment tampering.</td></tr>
+            <tr><td><a href="#ex-thefinalreport" class="method-link">TheFinalReport</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Summary on shutdown.</td></tr>
+            <tr><td><a href="#ex-guard" class="method-link">Guard</a></td><td><span class="type-tag">Guard</span></td><td><span class="badge yield">yields</span></td><td>Wrap functions with catch/default/finally chaining.</td></tr>
+            <tr><td><a href="#ex-metatableintegritysentinel" class="method-link">MetatableIntegritySentinel</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Check if metatables are tampered.</td></tr>
+            <tr><td><a href="#ex-compare" class="method-link">Compare</a></td><td><span class="type-tag">Compare</span></td><td><span class="badge noyield">.noyield</span></td><td>Fluent comparison with logging.</td></tr>
+            <tr><td><a href="#ex-usetrack" class="method-link">useTrack</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Watch table value changes, run side effects.</td></tr>
+            <tr><td><a href="#ex-automatedbreadcrumbs" class="method-link">AutomatedBreadcrumbs</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Track calls for error context.</td></tr>
+            <tr><td><a href="#ex-schemarecovery" class="method-link">SchemaRecovery</a></td><td><span class="type-tag">table</span></td><td><span class="badge noyield">.noyield</span></td><td>Fix invalid tables with defaults.</td></tr>
+            <tr><td><a href="#ex-tabledeepequal" class="method-link">TableDeepEqual</a></td><td><span class="type-tag">boolean</span></td><td><span class="badge noyield">.noyield</span></td><td>Deep equality check for tables.</td></tr>
+            <tr><td><a href="#ex-nilprotection" class="method-link">NilProtection</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Enable/disable nil protection mode.</td></tr>
+            <tr><td><a href="#ex-permissionguard" class="method-link">PermissionGuard</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Enable/disable security permission checks.</td></tr>
+            <tr><td><a href="#ex-lintingenforcer" class="method-link">LintingEnforcer</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Enable/disable strict type checking.</td></tr>
+            <tr><td><a href="#ex-metatablelock" class="method-link">MetatableLock</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Enable/disable metatable purity monitoring.</td></tr>
+            <tr><td><a href="#ex-catchorretry" class="method-link">CatchOrRetry</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Runs fn with retries on failure, snapshots state.</td></tr>
+            <tr><td><a href="#ex-succeeduntil" class="method-link">SucceedUntil</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Runs fn while condition is true, catches on failure.</td></tr>
+            <tr><td><a href="#ex-searchfor" class="method-link">SearchFor</a></td><td><span class="type-tag">table</span></td><td><span class="badge noyield">.noyield</span></td><td>Searches scope for objects matching query.</td></tr>
+            <tr><td><a href="#ex-validatemetatable" class="method-link">ValidateMetatable</a></td><td><span class="type-tag">boolean</span></td><td><span class="badge noyield">.noyield</span></td><td>Checks metatable against template.</td></tr>
+            <tr><td><a href="#ex-sync" class="method-link">Sync</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Keeps two tables in sync.</td></tr>
+            <tr><td><a href="#ex-expect" class="method-link">Expect</a></td><td><span class="type-tag">boolean</span></td><td><span class="badge noyield">.noyield</span></td><td>Runtime type check for value.</td></tr>
+            <tr><td><a href="#ex-traceattribute" class="method-link">TraceAttribute</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Monitors attribute changes with patterns.</td></tr>
+            <tr><td><a href="#ex-expectreturn" class="method-link">ExpectReturn</a></td><td><span class="type-tag">function</span></td><td><span class="badge noyield">.noyield</span></td><td>Wraps function to validate return type.</td></tr>
+            <tr><td><a href="#ex-interceptnil" class="method-link">InterceptNil</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Wraps target to return fallback on nil access.</td></tr>
+            <tr><td><a href="#ex-gate" class="method-link">Gate</a></td><td><span class="type-tag">Gate</span></td><td><span class="badge noyield">.noyield</span></td><td>Runs successFn only if condition is true.</td></tr>
+            <tr><td><a href="#ex-memoizewithverify" class="method-link">MemoizeWithVerify</a></td><td><span class="type-tag">function</span></td><td><span class="badge noyield">.noyield</span></td><td>Caches result but verifies periodically.</td></tr>
+            <tr><td><a href="#ex-polluntil" class="method-link">PollUntil</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Runs fn until condition is met or timeout.</td></tr>
+            <tr><td><a href="#ex-validatemetatableenhanced" class="method-link">ValidateMetatable</a></td><td><span class="type-tag">boolean</span></td><td><span class="badge noyield">.noyield</span></td><td>Checks for shadowing in metatable.</td></tr>
+            <tr><td><a href="#ex-match" class="method-link">Match</a></td><td><span class="type-tag">Match</span></td><td><span class="badge noyield">.noyield</span></td><td>Pattern matching with catch-all.</td></tr>
+            <tr><td><a href="#ex-modify" class="method-link">Modify</a></td><td><span class="type-tag">Modify</span></td><td><span class="badge noyield">.noyield</span></td><td>Fluent state editor with checks.</td></tr>
+            <tr><td><a href="#ex-waituntil" class="method-link">WaitUntil</a></td><td><span class="type-tag">WaitUntil</span></td><td><span class="badge yield">yields</span></td><td>Smart wait with timeout and snapshot.</td></tr>
+            <tr><td><a href="#ex-observereturn" class="method-link">ObserveReturn</a></td><td><span class="type-tag">function</span></td><td><span class="badge noyield">.noyield</span></td><td>Wraps function to log returns.</td></tr>
+            <tr><td><a href="#ex-waitandcompare" class="method-link">WaitAndCompare</a></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Waits for value to match expected.</td></tr>
+            <tr><td><a href="#ex-modifyproperty" class="method-link">ModifyProperty</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Safely sets instance properties.</td></tr>
+            <tr><td><a href="#ex-limit" class="method-link">Limit</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Sets guardrails on tables/instances to cap values and dispatch warnings.</td></tr>
+            <tr><td><a href="#ex-extend" class="method-link">Extend</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Registers custom functions with Examiner's reporting.</td></tr>
+            <tr><td><a href="#ex-throttle" class="method-link">Throttle</a></td><td><span class="type-tag">function</span></td><td><span class="badge noyield">.noyield</span></td><td>Limits function calls per second, blocks excess.</td></tr>
+            <tr><td><a href="#ex-schemaattribute" class="method-link">SchemaAttribute</a></td><td><span class="type-tag">function</span></td><td><span class="badge noyield">.noyield</span></td><td>Enforces type annotations from Roblox Attributes.</td></tr>
+            <tr><td><a href="#ex-mustreturn" class="method-link">MustReturn</a></td><td><span class="type-tag">function</span></td><td><span class="badge noyield">.noyield</span></td><td>Wraps function to ensure return within deadline.</td></tr>
+        </tbody>
+    </table>
+
+    <h4 id="ex-tabledeepequal">TableDeepEqual</h4>
+    <p>Performs a deep equality check between two tables, recursively comparing all nested values.</p>
+
+    <h4 id="ex-nilprotection">NilProtection</h4>
+    <p>Toggles nil protection mode, which returns dummy objects instead of failing on nil access.</p>
+
+    <h4 id="ex-permissionguard">PermissionGuard</h4>
+    <p>Enables checks for RBXScriptSecurity restricted properties to prevent crashes.</p>
+
+    <h4 id="ex-lintingenforcer">LintingEnforcer</h4>
+    <p>Verifies that function arguments match intended Luau types when enabled.</p>
+
+    <h4 id="ex-metatablelock">MetatableLock</h4>
+    <p>Alerts if a script's metatable has been modified at runtime when purity check is enabled.</p>
+
+    <h4 id="ex-catchorretry">CatchOrRetry</h4>
+    <p>Runs a function with automatic retries on failure, snapshots state, and dispatches fatal reports when retry limit is exceeded.</p>
+
+    <h4 id="ex-succeeduntil">SucceedUntil</h4>
+    <p>Continuously runs a function while a condition remains true, catching state and dispatching diagnostics when the condition fails.</p>
+
+    <h4 id="ex-searchfor">SearchFor</h4>
+    <p>Searches a scope for instances matching a query, with optional auto-sanitization of illegal objects.</p>
+
+    <h4 id="ex-validatemetatable">ValidateMetatable</h4>
+    <p>Validates an object's metatable against a template, catching any drift or unauthorized modifications.</p>
+
+    <h4 id="ex-sync">Sync</h4>
+    <p>Maintains synchronization between two tables, catching and reporting sync errors.</p>
+
+    <h4 id="ex-expect">Expect</h4>
+    <p>Performs runtime type checking on values, dispatching errors for type mismatches.</p>
+
+    <h4 id="ex-traceattribute">TraceAttribute</h4>
+    <p>Monitors Roblox instance attributes for changes, enforcing strict value patterns.</p>
+
+    <h4 id="ex-expectreturn">ExpectReturn</h4>
+    <p>Wraps a function to validate its return type, dispatching errors for mismatches.</p>
+
+    <h4 id="ex-interceptnil">InterceptNil</h4>
+    <p>Wraps a table or instance to return a fallback value on nil access, preventing crashes.</p>
+
+    <h4 id="ex-gate">Gate</h4>
+    <p>Logic bouncer that runs a function only if a condition is met, with else handling.</p>
+
+    <h4 id="ex-memoizewithverify">MemoizeWithVerify</h4>
+    <p>Caches function results for performance but verifies periodically for data drift.</p>
+
+    <h4 id="ex-polluntil">PollUntil</h4>
+    <p>Runs a function repeatedly until a condition is met or timeout occurs.</p>
+
+    <h4 id="ex-validatemetatableenhanced">ValidateMetatable</h4>
+    <p>Checks for metatable shadowing where table keys override metatable entries.</p>
+
+    <h4 id="ex-match">Match</h4>
+    <p>Pattern matching system with catch-all handler for resilient logic.</p>
+
+    <h4 id="ex-modify">Modify</h4>
+    <p>Fluent state editor that applies changes only if all checks pass.</p>
+
+    <h4 id="ex-waituntil">WaitUntil</h4>
+    <p>Smart wait with timeout, snapshot on failure, and promise-like chaining.</p>
+
+    <h4 id="ex-observereturn">ObserveReturn</h4>
+    <p>Wraps functions to log their return values for debugging and history.</p>
+
+    <h4 id="ex-waitandcompare">WaitAndCompare</h4>
+    <p>Waits for a specific value to match an expected state.</p>
+
+    <h4 id="ex-modifyproperty">ModifyProperty</h4>
+    <p>Safely sets Roblox instance properties with error handling.</p>
+
+    <h4 id="ex-limit">Limit</h4>
+    <p>Sets guardrails on tables or instances. Intercepts assignments and caps values at min/max, dispatches warnings, and takes snapshots on violations.</p>
+
+    <h4 id="ex-extend">Extend</h4>
+    <p>Allows registration of custom debug logic into Examiner, automatically inheriting reporting and snapshotting capabilities.</p>
+
+    <h4 id="ex-throttle">Throttle</h4>
+    <p>Limits how many times a function can be called per second. Blocks excess calls, dispatches warnings, and snapshots the calling context.</p>
+
+    <h4 id="ex-schemaattribute">SchemaAttribute</h4>
+    <p>Reads Roblox Attributes for type definitions (e.g., TypeAnnotation="Number") and enforces them on attribute changes, reverting invalid types.</p>
+
+    <h4 id="ex-mustreturn">MustReturn</h4>
+    <p>Wraps a function to ensure it returns within a timeout. Catches infinite loops or stuck waits, dispatches errors, and snapshots arguments.</p>
 
     <h3>Example: Usage Pattern</h3>
     <div class="code-container">
