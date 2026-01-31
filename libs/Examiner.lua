@@ -42,7 +42,7 @@ do
     end
 end
 
-local __TESTING_ENABLED__ = _G.__TESTING_ENABLED__
+local __TESTING_ENABLED__ = _G.__TESTING_ENABLED__ or true
 
 -- Internal storage
 local Snapshots = {} -- id -> {time, data, source}
@@ -2601,3 +2601,4 @@ return Examiner
 ---------------------------------------------------------------------------------------------
 --                                         EXAMINER                                        --
 ---------------------------------------------------------------------------------------------
+
