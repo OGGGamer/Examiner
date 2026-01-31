@@ -15,14 +15,7 @@ Output:
                                             EXAMINER
   ---------------------------------------------------------------------------------------------
   [Source]: <unknown>
-  [Triggered By]: require(game.ReplicatedStorage.Modules.Examiner).Report("DataStores are down!")
+  [Triggered By]: ServerScriptService.Server
   [Target]: string
   ---------------------------------------------------------------------------------------------
-    > require(game.ReplicatedStorage.Modules.Examiner).Report("DataStores are down!")
-    ---------------------------------------------------------------------------------------------
-                                            EXAMINER
-  ---------------------------------------------------------------------------------------------
-  [Source]: <unknown>
-  [Triggered By]: console
-  [Target]: string
 ```
