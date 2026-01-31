@@ -75,7 +75,7 @@ end
 
 -- Snapshot: save a ghost copy of the object/table and return id
 -- Public: create a ghost snapshot of `target` and return an id
--- Examiner.html#snapshots
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#snapshots)
 function Examiner.Snapshot(target, meta)
     SnapshotCounter = SnapshotCounter + 1
     local id = SnapshotCounter
@@ -113,8 +113,7 @@ local function tableDiff(a,b,prefix,acc)
     return acc
 end
 
--- #ex-diff
--- #{DiffSnapshots}
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#snapshots)
 -- Public: diff a saved snapshot `id` against `live` state
 function Examiner.DiffSnapshots(id, live)
     local s = Snapshots[id]
@@ -152,8 +151,7 @@ local function moduleTracePath(tb)
 end
 
 -- Format examine report
--- #ex-report
--- #{Report}
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#core)
 -- Public: format a detailed examine report for `target`
 -- #core
 function Examiner.Report(target, unexpected, opts)
@@ -208,10 +206,8 @@ local function makeInformerRecord(fn, ctx)
     return record
 end
 
--- #ex-informer
--- #{Informer.new}
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Method: create and run an Informer for `fn`
--- #informer
 function Informer:new(fn, ctx)
     local self = makeInformerRecord(fn, ctx)
     -- run immediately in protected call
@@ -238,7 +234,7 @@ function Informer:new(fn, ctx)
     return self
 end
 
--- #{Informer.catch}
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Method: attach an error catcher to the Informer
 function Informer:catch(fn)
     if type(fn) == "function" then
@@ -248,7 +244,7 @@ function Informer:catch(fn)
     return self
 end
 
--- #{Informer.finally}
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Method: attach a finalizer to run after the Informer
 function Informer:finally(fn)
     if type(fn) == "function" then
@@ -258,7 +254,7 @@ function Informer:finally(fn)
     return self
 end
 
--- #{Informer.Retry}
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Method: retry the Informer's function by creating a new Informer
 function Informer:Retry()
     if type(self.fn) == "function" then
@@ -266,16 +262,15 @@ function Informer:Retry()
     end
 end
 
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Public: create an Informer from a function
--- #{Informer}
 -- Public: convenience factory to create an Informer
 function Examiner.Informer(fn, ctx)
     return Informer:new(fn, ctx)
 end
 
 -- Bind a Part's color to a logger Signal: expects a logger with .Signal (Signal:Connect)
--- #ex-bindpart
--- #{BindPartToLogger}
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#reactive
 -- Public: bind a Part's color to logger Signal events
 function Examiner.BindPartToLogger(part, logger, map)
     if not HAS_ROBLOX or typeof(part) ~= "Instance" or not logger or not logger.Signal then return end
@@ -291,10 +286,8 @@ function Examiner.BindPartToLogger(part, logger, map)
 end
 
 -- Simple observer: poll a global variable and call callback on change
--- #ex-observe
--- #{ObserveVariable}
 -- Public: poll a global variable and call `callback` on change
--- #reactive
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#reactive)
 function Examiner.ObserveVariable(name, callback, interval)
     if not name or type(callback) ~= "function" then return end
     local int = tonumber(interval) or 0.5
@@ -314,9 +307,8 @@ function Examiner.ObserveVariable(name, callback, interval)
     VarObservers[name] = { stop = function() running = false end }
 end
 
--- #ex-unobserve
--- #{UnobserveVariable}
 -- Public: stop observing a previously observed global variable
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#reactive)
 function Examiner.UnobserveVariable(name)
     local rec = VarObservers[name]
     if rec and rec.stop then pcall(rec.stop) end
@@ -324,9 +316,8 @@ function Examiner.UnobserveVariable(name)
 end
 
 -- Inject a value into a table via path (e.g., {"a","b",3})
--- #ex-inject
--- #{Inject}
 -- Public: inject `value` into `target` following `path` (array keys)
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#reactive)
 function Examiner.Inject(target, path, value)
     if type(path) ~= "table" or #path == 0 then return false end
     local cur = target
@@ -343,9 +334,8 @@ function Examiner.Inject(target, path, value)
 end
 
 -- Pipe middleware for Examine reports
--- #ex-pipe
--- #{pipe}
 -- Public: register a middleware pipe to transform reports
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#core)
 function Examiner.pipe(fn)
     if type(fn) == "function" then Pipes[#Pipes+1] = fn end
 end
@@ -361,9 +351,8 @@ local function applyPipes(report)
 end
 
 -- Convert a report to JSON if possible
--- #ex-json
--- #{ReportToJSON}
 -- Public: attempt to encode a report to JSON (uses HttpService if available)
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#core)
 function Examiner.ReportToJSON(report)
     if HttpService and HttpService.JSONEncode then
         local ok, js = pcall(function() return HttpService:JSONEncode({ report = report }) end)
@@ -373,9 +362,8 @@ function Examiner.ReportToJSON(report)
 end
 
 -- WatchRequires: API to register when a module is required (manual instrument)
--- #{RecordRequire}
 -- Public: notify watchers that a module was required
--- #requires
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#requires)
 function Examiner.RecordRequire(moduleName, by)
     local list = RequireWatchers[moduleName]
     if list then
@@ -383,8 +371,8 @@ function Examiner.RecordRequire(moduleName, by)
     end
 end
 
--- #{WatchRequire}
 -- Public: subscribe to manual require notifications for `moduleName`
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#requires)
 function Examiner.WatchRequire(moduleName, cb)
     RequireWatchers[moduleName] = RequireWatchers[moduleName] or {}
     table.insert(RequireWatchers[moduleName], cb)
@@ -392,20 +380,20 @@ end
 
 -- Small helper for printing/storing examine output (consumer can subscribe)
 Examiner.Signal = { _c = {} }
--- #{Signal.Connect}
+
 -- Public: connect a subscriber to the Examiner signal
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#reactive)
 function Examiner.Signal:Connect(fn)
     table.insert(self._c, fn)
     return { Disconnect = function() end }
 end
--- #{Signal.Fire}
+
 -- Public: fire the Examiner signal to all subscribers
 function Examiner.Signal:Fire(...) for _,c in ipairs(self._c) do pcall(c, ...) end end
 
 -- Main API: Examine a target and optionally snapshot/diff
--- #ex-examine
--- #{Examine}
 -- Public: produce, publish, and return an examine report for `target`
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#core)
 function Examiner.Examine(target, unexpected, opts)
     opts = opts or {}
     local report = Examiner.Report(target, unexpected, opts)
@@ -414,26 +402,30 @@ function Examiner.Examine(target, unexpected, opts)
     Examiner.Signal:Fire(report, target, opts)
     -- return object with helper methods (Retry, toJSON, snapshot)
     local ctx = {}
-    -- #context
+    -- [Open Documentation](https://ogggamer.github.io/Examiner/#context)
     function ctx:toJSON()
         return Examiner.ReportToJSON(report)
     end
+
+    -- [Open Documentation](https://ogggamer.github.io/Examiner/#context)
     function ctx:snapshot()
         local id = Examiner.Snapshot(target, { note = opts.note })
         return id
     end
+
+    -- [Open Documentation](https://ogggamer.github.io/Examiner/#context)
     function ctx:retry(func)
         if type(func) == "function" then
             return Examiner.Informer(func, { logger = opts.logger })
         end
     end
+
     return report, ctx
 end
 
 -- Small convenience: examine and print via a logger instance if provided
--- #ex-logger
--- #{ExamineWithLogger}
 -- Public: convenience: examine and print via provided `logger`
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#core)
 function Examiner.ExamineWithLogger(logger, target, unexpected, opts)
     local r, ctx = Examiner.Examine(target, unexpected, opts)
     if logger and logger.info then pcall(logger.info, logger, r) else print(r) end
