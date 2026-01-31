@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examiner API Reference | Verified</title>
+    <style>
+        /* --- CSS VARIABLES & ADAPTIVE THEMES --- */
+        :root {
+            --bg-color: #FFFFFF;
+            --sidebar-bg: #F2F4F5;
+            --text-color: #393B3D;
+            --text-secondary: #666;
+            --border-color: #E3E5E6;
+            --accent-color: #00A2FF;
+            --link-color: #0066CC;
+            
+            /* Light Mode Luau Syntax */
+            --code-bg: #F9F9F9;
+            --code-text: #24292e;
+            --kw: #d73a49;   /* Red/Pink */
+            --func: #6f42c1; /* Purple */
+            --str: #032f62;  /* Dark Blue */
+            --op: #d73a49;   /* Red */
+            --com: #6a737d;  /* Gray */
+
+            --status-yield: #FFF3E0;
+            --status-noyield: #E8F5E9;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1A1C1E;
+            --sidebar-bg: #111214;
+            --text-color: #FFFFFF;
+            --text-secondary: #B1B3B5;
+            --border-color: #333;
+            --accent-color: #00A2FF;
+            --link-color: #7EC8FF;
+
+            /* Dark Mode Luau Syntax */
+            --code-bg: #0B0C0E;
+            --code-text: #ABB2BF;
+            --kw: #C678DD;   /* Purple */
+            --func: #61AFEF; /* Blue */
+            --str: #98C379;  /* Green */
+            --op: #D19A66;   /* Orange */
+            --com: #5C6370;  /* Gray */
+        }
+
+        /* --- LAYOUT --- */
+        body { font-family: "Segoe UI", sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; transition: background 0.2s; }
+        .sidebar { width: 280px; height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; padding: 24px; overflow-y: auto; z-index: 10; }
+        .sidebar h3 { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent-color); margin-top: 0; }
+        .sidebar-link { display: block; padding: 8px 12px; text-decoration: none; color: var(--text-color); font-size: 14px; border-radius: 6px; margin-bottom: 4px; }
+        .sidebar-link:hover { background: var(--border-color); color: var(--accent-color); }
+
+        .main-content { margin-left: 310px; padding: 60px 40px; max-width: 900px; line-height: 1.6; }
+
+        /* --- TABLES --- */
+        table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14px; }
+        th { background: var(--sidebar-bg); text-align: left; padding: 12px; border-bottom: 2px solid var(--border-color); color: var(--text-secondary); text-transform: uppercase; font-size: 11px; }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+
+        /* --- BADGES --- */
+        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; text-transform: uppercase; }
+        .badge.yield { background: var(--status-yield); color: #E65100; }
+        .badge.noyield { background: var(--status-noyield); color: #2E7D32; }
+        .type-tag { font-family: monospace; color: var(--accent-color); font-weight: bold; }
+
+        /* --- CODE BOXES --- */
+        .code-container { position: relative; margin: 24px 0; }
+        pre { background: var(--code-bg); padding: 18px; border-radius: 8px; border: 1px solid var(--border-color); overflow-x: auto; font-family: "Fira Code", monospace; font-size: 13.5px; color: var(--code-text); }
+        .copy-btn { position: absolute; top: 10px; right: 10px; background: var(--accent-color); color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; opacity: 0.8; }
+        .copy-btn:hover { opacity: 1; }
+
+        /* Syntax colors */
+        .kw { color: var(--kw); font-weight: bold; }
+        .func { color: var(--func); }
+        .str { color: var(--str); }
+        .op { color: var(--op); }
+        .com { color: var(--com); font-style: italic; }
+
+        .method-link { color: var(--accent-color); text-decoration: none; font-weight: bold; font-family: monospace; }
+        .theme-toggle { position: fixed; top: 20px; right: 20px; z-index: 100; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: var(--accent-color); color: white; cursor: pointer; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Theme</button>
+
+<nav class="sidebar">
+    <h3>EXAMINER API</h3>
+    <a href="#core" class="sidebar-link">Core Inspection</a>
+    <a href="#snapshots" class="sidebar-link">Snapshots & Diffing</a>
+    <a href="#context" class="sidebar-link">Examine Context (Ctx)</a>
+    <a href="#informer" class="sidebar-link">Informer Class</a>
+    <a href="#requires" class="sidebar-link">Require Watchers</a>
+    <a href="#reactive" class="sidebar-link">Reactive Tools</a>
+</nav>
+
+<div class="main-content">
+    <h1>Examiner verified API</h1>
+    <p>Complete reference for the deep-inspection and state-tracking engine.</p>
+
+    <h2 id="core">Core Inspection</h2>
+    <table>
+        <thead>
+            <tr><th>Member</th><th>Returns</th><th>Behavior</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><a href="#ex-examine" class="method-link">Examine</a></td><td><span class="type-tag">string, ctx</span></td><td><span class="badge noyield">.noyield</span></td><td>Main entry point for full reports and context creation.</td></tr>
+            <tr><td><a href="#ex-logger" class="method-link">ExamineWithLogger</a></td><td><span class="type-tag">string, ctx</span></td><td><span class="badge noyield">.noyield</span></td><td>Wraps <code>Examine</code> and routes output to a logger object.</td></tr>
+            <tr><td><a href="#ex-report" class="method-link">Report</a></td><td><span class="type-tag">string</span></td><td><span class="badge noyield">.noyield</span></td><td>Internal engine that formats the text report summary.</td></tr>
+            <tr><td><a href="#ex-pipe" class="method-link">pipe</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Adds a middleware function to modify reports.</td></tr>
+            <tr><td><a href="#ex-json" class="method-link">ReportToJSON</a></td><td><span class="type-tag">string?</span></td><td><span class="badge noyield">.noyield</span></td><td>Uses HttpService to encode reports for external use.</td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="snapshots">Snapshots & Diffing</h2>
+    <table>
+        <thead>
+            <tr><th>Member</th><th>Returns</th><th>Behavior</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><a href="#ex-snapshot" class="method-link">Snapshot</a></td><td><span class="type-tag">number</span></td><td><span class="badge noyield">.noyield</span></td><td>Captures a deep-copy of a table; returns a unique ID.</td></tr>
+            <tr><td><a href="#ex-diff" class="method-link">DiffSnapshots</a></td><td><span class="type-tag">table?</span></td><td><span class="badge noyield">.noyield</span></td><td>Compares a snapshot ID against a live table state.</td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="context">Examine Context (Ctx Object)</h2>
+    <p>Returned as the second value from <code>Examine()</code>.</p>
+    <table>
+        <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td><code>:toJSON()</code></td><td><span class="type-tag">string?</span></td><td>Encodes the report linked to this context.</td></tr>
+            <tr><td><code>:snapshot()</code></td><td><span class="type-tag">number</span></td><td>Snapshots the original target of this examination.</td></tr>
+            <tr><td><code>:retry(fn)</code></td><td><span class="type-tag">Informer</span></td><td>Runs a new function wrapped in an Informer.</td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="informer">Informer Class</h2>
+    <table>
+        <thead><tr><th>Method</th><th>Returns</th><th>Behavior</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td><a href="#ex-informer" class="method-link">Informer</a></td><td><span class="type-tag">Informer</span></td><td><span class="badge yield">yields</span></td><td>Creates a protected async wrapper for operations.</td></tr>
+            <tr><td><code>:catch(fn)</code></td><td><span class="type-tag">self</span></td><td><span class="badge noyield">.noyield</span></td><td>Executes if the informer's function fails.</td></tr>
+            <tr><td><code>:finally(fn)</code></td><td><span class="type-tag">self</span></td><td><span class="badge noyield">.noyield</span></td><td>Runs after the operation regardless of outcome.</td></tr>
+            <tr><td><code>:Retry()</code></td><td><span class="type-tag">Informer</span></td><td><span class="badge yield">yields</span></td><td>Restarts the informer logic.</td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="requires">Require Watchers (Manual Instrumentation)</h2>
+    <table>
+        <thead><tr><th>Member</th><th>Returns</th><th>Behavior</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td><code>RecordRequire</code></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Notifies watchers that a module was required.</td></tr>
+            <tr><td><code>WatchRequire</code></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Subscribes a callback to module require events.</td></tr>
+        </tbody>
+    </table>
+
+    <h2 id="reactive">Reactive Tools</h2>
+    <table>
+        <thead><tr><th>Member</th><th>Returns</th><th>Behavior</th><th>Description</th></tr></thead>
+        <tbody>
+            <tr><td><code>ObserveVariable</code></td><td><span class="type-tag">void</span></td><td><span class="badge yield">yields</span></td><td>Polls a <code>_G</code> variable for changes.</td></tr>
+            <tr><td><code>UnobserveVariable</code></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Kills the polling loop for a variable.</td></tr>
+            <tr><td><code>Inject</code></td><td><span class="type-tag">boolean</span></td><td><span class="badge noyield">.noyield</span></td><td>Forcefully inserts a value into a nested table path.</td></tr>
+            <tr><td><code>BindPartToLogger</code></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Changes a Part's color based on Logger signals.</td></tr>
+            <tr><td><code>Signal</code></td><td><span class="type-tag">table</span></td><td><span class="badge noyield">.noyield</span></td><td>Internal pub/sub system for Examiner events.</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Example: Usage Pattern</h3>
+    <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code><span class="kw">local</span> Examiner <span class="op">=</span> <span class="func">require</span>(path.to.Examiner)
+
+<span class="com">-- Track state over time</span>
+<span class="kw">local</span> snapshotId <span class="op">=</span> Examiner.<span class="func">Snapshot</span>(playerData)
+
+<span class="com">-- Later, check for mutations</span>
+<span class="kw">local</span> report, ctx <span class="op">=</span> Examiner.<span class="func">Examine</span>(playerData, <span class="kw">nil</span>, { snapshotId <span class="op">=</span> snapshotId })
+<span class="func">print</span>(report)
+
+<span class="com">-- Export to external monitoring</span>
+<span class="kw">local</span> payload <span class="op">=</span> ctx:<span class="func">toJSON</span>()</code></pre>
+    </div>
+</div>
+
+<script>
+    function toggleTheme() {
+        const html = document.documentElement;
+        const current = html.getAttribute('data-theme');
+        html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    function copyCode(btn) {
+        const pre = btn.nextElementSibling;
+        const text = pre.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const original = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => btn.innerText = original, 1500);
+        });
+    }
+</script>
+</body>
+</html>
