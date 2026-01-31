@@ -109,12 +109,21 @@
         </thead>
         <tbody>
             <tr><td><a href="#ex-examine" class="method-link">Examine</a></td><td><span class="type-tag">string, ctx</span></td><td><span class="badge noyield">.noyield</span></td><td>Main entry point for full reports and context creation.</td></tr>
+            <tr><td><a href="#ex-dispatch" class="method-link">Dispatch</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Consolidates identical reports to prevent console flooding.</td></tr>
             <tr><td><a href="#ex-logger" class="method-link">ExamineWithLogger</a></td><td><span class="type-tag">string, ctx</span></td><td><span class="badge noyield">.noyield</span></td><td>Wraps <code>Examine</code> and routes output to a logger object.</td></tr>
             <tr><td><a href="#ex-report" class="method-link">Report</a></td><td><span class="type-tag">string</span></td><td><span class="badge noyield">.noyield</span></td><td>Internal engine that formats the text report summary.</td></tr>
             <tr><td><a href="#ex-pipe" class="method-link">pipe</a></td><td><span class="type-tag">void</span></td><td><span class="badge noyield">.noyield</span></td><td>Adds a middleware function to modify reports.</td></tr>
             <tr><td><a href="#ex-json" class="method-link">ReportToJSON</a></td><td><span class="type-tag">string?</span></td><td><span class="badge noyield">.noyield</span></td><td>Uses HttpService to encode reports for external use.</td></tr>
         </tbody>
     </table>
+
+    <h2 id="dispatching">Intelligent Dispatching</h2>
+    <p>The Examiner automatically handles "noise" by batching identical reports that occur within a 0.1s window.</p>
+    <div class="code-container">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+       <pre><code><span class="com">-- If 50 parts call this at once, only ONE report prints with a (x50) badge.</span>
+Examiner.<span class="func">Dispatch</span>(myReport)</code></pre>
+    </div>
 
     <h2 id="snapshots">Snapshots & Diffing</h2>
     <table>
@@ -206,4 +215,3 @@
 </script>
 </body>
 </html>
-
