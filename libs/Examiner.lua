@@ -42,6 +42,8 @@ do
     end
 end
 
+local __TESTING_ENABLED__ = _G.__TESTING_ENABLED__
+
 -- Internal storage
 local Snapshots = {} -- id -> {time, data, source}
 local SnapshotCounter = 0
@@ -314,6 +316,8 @@ function Examiner.Report(target, unexpected, opts)
 	end
 
 	table.insert(lines, string.rep("-", 93))
+	
+	print(table.concat(lines, "\n"))
 	return table.concat(lines, "\n")
 end
 
@@ -2544,6 +2548,11 @@ local CurrentTest = nil
     StartTest: Start and stop tests with memory leak detection.
 ]]
 function Examiner.StartTest(testName, options)
+	if not __TESTING_ENABLED__ then
+		Examiner.Report("Cannot start test: testing is disabled")
+		return
+	end
+	
     CurrentTest = {
         Name = testName,
         StartTime = tick(),
@@ -2563,6 +2572,11 @@ end
     StopTest: Ends the current test, compares snapshots for leaks.
 ]]
 function Examiner.StopTest()
+	if not __TESTING_ENABLED__ then
+		Examiner.Report("Cannot stop test: testing is disabled")
+		return
+	end
+	
     if not CurrentTest then return end
     
     local endTime = tick()
