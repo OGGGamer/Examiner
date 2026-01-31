@@ -49,6 +49,7 @@ local Informers = {} -- persistent tracking of informer records
 local RequireWatchers = {} -- moduleName -> {callbacks}
 local VarObservers = {} -- name -> {callbacks, running}
 local Pipes = {} -- middleware chain
+local ReportCache = {} -- cache of reports
 
 --[[
     Utility: shallow+deep copying limited for safety
@@ -90,6 +91,35 @@ function Examiner.Snapshot(target, meta)
     local ok, copy = pcall(function() return deepCopy(target) end)
     Snapshots[id] = { time = os.time(), data = ok and copy or tostring(target), source = meta }
     return id
+end
+
+
+--[[
+    Dispatch: Consolidates and outputs reports to prevent console flooding.
+    
+    Public: Batches identical reports within a 0.1s window.
+    
+    [Open Documentation](https://ogggamer.github.io/Examiner/#core)
+]]
+function Examiner.Dispatch(report)
+	if ReportCache[report] then
+		ReportCache[report] += 1
+		return
+	end
+
+	ReportCache[report] = 1
+
+	task.delay(0.1, function()
+		local count = ReportCache[report]
+
+		local finalOutput = (count > 1) 
+			and string.format("[EXAMINER] (x%d Identical Events)\n%s", count, report)
+			or report
+
+		print(finalOutput)
+
+		ReportCache[report] = nil
+	end)
 end
 
 --[[
