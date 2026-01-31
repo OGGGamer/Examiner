@@ -113,8 +113,8 @@ local function tableDiff(a,b,prefix,acc)
     return acc
 end
 
--- [Open Documentation](https://ogggamer.github.io/Examiner/#snapshots)
 -- Public: diff a saved snapshot `id` against `live` state
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#snapshots)
 function Examiner.DiffSnapshots(id, live)
     local s = Snapshots[id]
     if not s then return nil, "missing snapshot" end
@@ -151,9 +151,8 @@ local function moduleTracePath(tb)
 end
 
 -- Format examine report
--- [Open Documentation](https://ogggamer.github.io/Examiner/#core)
 -- Public: format a detailed examine report for `target`
--- #core
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#core)
 function Examiner.Report(target, unexpected, opts)
     opts = opts or {}
     local tb = debug.traceback("", 3)
@@ -206,8 +205,8 @@ local function makeInformerRecord(fn, ctx)
     return record
 end
 
--- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Method: create and run an Informer for `fn`
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 function Informer:new(fn, ctx)
     local self = makeInformerRecord(fn, ctx)
     -- run immediately in protected call
@@ -234,8 +233,8 @@ function Informer:new(fn, ctx)
     return self
 end
 
--- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Method: attach an error catcher to the Informer
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 function Informer:catch(fn)
     if type(fn) == "function" then
         self.caught = true
@@ -244,8 +243,8 @@ function Informer:catch(fn)
     return self
 end
 
--- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Method: attach a finalizer to run after the Informer
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 function Informer:finally(fn)
     if type(fn) == "function" then
         self.final = true
@@ -254,24 +253,24 @@ function Informer:finally(fn)
     return self
 end
 
--- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Method: retry the Informer's function by creating a new Informer
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 function Informer:Retry()
     if type(self.fn) == "function" then
         return Informer:new(self.fn, self.ctx)
     end
 end
 
--- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 -- Public: create an Informer from a function
 -- Public: convenience factory to create an Informer
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#informer)
 function Examiner.Informer(fn, ctx)
     return Informer:new(fn, ctx)
 end
 
 -- Bind a Part's color to a logger Signal: expects a logger with .Signal (Signal:Connect)
--- [Open Documentation](https://ogggamer.github.io/Examiner/#reactive
 -- Public: bind a Part's color to logger Signal events
+-- [Open Documentation](https://ogggamer.github.io/Examiner/#reactive
 function Examiner.BindPartToLogger(part, logger, map)
     if not HAS_ROBLOX or typeof(part) ~= "Instance" or not logger or not logger.Signal then return end
     map = map or { info = Color3.fromRGB(200,200,200), warn = Color3.fromRGB(255,180,0), error = Color3.fromRGB(220,40,40) }
