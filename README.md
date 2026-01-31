@@ -4,7 +4,7 @@ For more information go to the [Examiner Documentation](https://ogggamer.github.
 
 # Inspiration
 The examiner module is similiar to the roblox modules [Promise](https://github.com/evaera/roblox-lua-promise/tree/master) and [React](https://github.com/Roblox/react-luau), which are used a lot.
-So, I decided to take a chance to make a module that instead of catching fatal or promise errors why not examine the script?
+So, I decided to take a chance to make a module that instead of catching fatal or promise errors it examines scripts and debugs info that may be harming the script or interesting types (etc...)
 
 Let's say roblox's API error's or your datastore fails; it will catch that.
 You can see how much this can be useful.
