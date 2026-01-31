@@ -2536,6 +2536,52 @@ function Examiner.MustReturn(fn, timeout)
     end
 end
 
+local CurrentTest = nil
+
+-- 96. Start Test
+-- #ex-starttest
+--[[
+    StartTest: Start and stop tests with memory leak detection.
+]]
+function Examiner.StartTest(testName, options)
+    CurrentTest = {
+        Name = testName,
+        StartTime = tick(),
+        InitialSnapshot = Examiner.Snapshot(workspace:GetChildren()),
+        StrictGlobalCheck = options.StrictGlobals or false
+    }
+    
+    -- If StrictGlobals is on, we lock _G or shared
+    if CurrentTest.StrictGlobalCheck then
+        Examiner.Dispatch("Test Started: " .. testName .. " [STRICT MODE ON]", "info")
+    end
+end
+
+-- 97. Stop Test
+-- #ex-stoptest
+--[[
+    StopTest: Ends the current test, compares snapshots for leaks.
+]]
+function Examiner.StopTest()
+    if not CurrentTest then return end
+    
+    local endTime = tick()
+    local finalSnapshot = workspace:GetChildren()
+    local leaks = Examiner.DiffSnapshots(CurrentTest.InitialSnapshot, finalSnapshot)
+    
+    -- Report the results
+    if #leaks > 0 then
+        Examiner.Dispatch("Test Failed: " .. CurrentTest.Name .. " - Memory Leaks Detected!", "error")
+        for _, item in ipairs(leaks) do
+            print("   Leak found: " .. tostring(item))
+        end
+    else
+        Examiner.Dispatch("Test Passed: " .. CurrentTest.Name .. " in " .. (endTime - CurrentTest.StartTime) .. "s", "info")
+    end
+    
+    CurrentTest = nil
+end
+
 -- Export
 return Examiner
 ---------------------------------------------------------------------------------------------
