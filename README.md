@@ -16,6 +16,8 @@ Output:
   ---------------------------------------------------------------------------------------------
   [Source]: <unknown>
   [Triggered By]: ServerScriptService.Server
-  [Target]: string
+  [Target]: userdata
+  [Unexpected]: DataStores are down!
+  [Instance]: Server (Script)
   ---------------------------------------------------------------------------------------------
 ```
