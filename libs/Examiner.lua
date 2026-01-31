@@ -2554,6 +2554,10 @@ function Examiner.StartTest(testName, options)
 		return
 	end
 	
+	if not options then
+		options = {}
+	end
+	
     CurrentTest = {
         Name = testName,
         StartTime = tick(),
@@ -2602,4 +2606,3 @@ return Examiner
 ---------------------------------------------------------------------------------------------
 --                                         EXAMINER                                        --
 ---------------------------------------------------------------------------------------------
-
