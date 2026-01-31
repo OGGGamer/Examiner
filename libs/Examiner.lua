@@ -256,6 +256,97 @@ local function getCallingScript()
 	return current
 end
 
+
+--[[ 
+    Examiner:new(target)
+    Creates a stateful Examiner instance for a specific object or system.
+]]
+local ExaminerInstance = {}
+ExaminerInstance.__index = ExaminerInstance
+
+function Examiner.new(target)
+	local self = setmetatable({}, ExaminerInstance)
+	self.target = target
+	self.history = {}
+	self.retryCount = 0
+	self.maxRetries = 3
+	return self
+end
+
+-- #ex-try
+--[[ try: Executes a function on the target with automatic error wrapping ]]
+function ExaminerInstance:try(fn)
+	local ok, err = pcall(fn, self.target)
+	if not ok then
+		self.lastError = err
+		Examiner.Dispatch("Try failed: " .. tostring(err), "error")
+		Examiner.Snapshot(self.target, { note = "state at failure" })
+	end
+	return self
+end
+
+-- #ex-catch
+--[[ catch: Runs only if the previous 'try' failed ]]
+function ExaminerInstance:catch(fn)
+	if self.lastError then
+		pcall(fn, self.lastError, self.target)
+		self.lastError = nil -- Reset after handling
+	end
+	return self
+end
+
+-- #ex-retry
+--[[ retry: Re-runs a function up to maxRetries if it fails ]]
+function ExaminerInstance:retry(fn, limit)
+	limit = limit or self.maxRetries
+	local attempts = 0
+	local success = false
+
+	while attempts < limit and not success do
+		attempts = attempts + 1
+		local ok, err = pcall(fn, self.target)
+		if ok then
+			success = true
+		else
+			self.lastError = err
+			task.wait(0.1 * attempts) -- Exponential backoff
+		end
+	end
+
+	if not success then
+		Examiner.Dispatch("Retry limit reached for " .. tostring(fn), "error")
+	end
+	return self
+end
+
+-- #ex-isdefined
+--[[ isDefined: Ensures a key exists in the target, otherwise dispatches error ]]
+function ExaminerInstance:isDefined(key)
+	if self.target[key] == nil then
+		Examiner.Dispatch(string.format("Property %s is undefined on target", tostring(key)), "error")
+		return false
+	end
+	return true
+end
+
+-- #ex-find
+--[[ find: Deep-searches the target for a specific value ]]
+function ExaminerInstance:find(value)
+	local results = {}
+	local function search(t, path)
+		for k, v in pairs(t) do
+			local currentPath = path .. "." .. tostring(k)
+			if v == value then
+				table.insert(results, currentPath)
+			elseif type(v) == "table" then
+				search(v, currentPath)
+			end
+		end
+	end
+	search(self.target, "root")
+	return results
+end
+
 --[[
     Format examine report
 
