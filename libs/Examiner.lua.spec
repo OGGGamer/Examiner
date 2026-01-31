@@ -6,9 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Examiner = require(ReplicatedStorage.Modules.Examiner)
 
 return function()
-    -- Ensure testing is globally enabled for lifecycle tests
-    _G.__TESTING_ENABLED__ = true
-
     describe("Core Utilities", function()
 		it("should perform a deep copy correctly", function()
 			local original = { a = 1, b = { c = 2 } }
