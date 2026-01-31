@@ -258,5 +258,53 @@ return function()
             -- Final report would run on game:BindToClose()
             expect(true).toBe(true)
         end)
-    end)
+	end)
+	
+	describe("7. Stateful Examiner Instances (#ex-new)", function()
+
+		it("should manage isolated try/catch flows", function()
+			local data = { HP = 100 }
+			local ex = Examiner:new(data)
+			local caught = false
+
+			ex:try(function(target)
+				error("Force fail")
+			end):catch(function(err)
+				caught = true
+			end)
+
+			expect(caught).toBe(true)
+		end)
+
+		it("should retry operations until success", function()
+			local data = { attempts = 0 }
+			local ex = Examiner:new(data)
+
+			ex:retry(function(target)
+				target.attempts = target.attempts + 1
+				if target.attempts < 2 then error("Fail first time") end
+			end)
+
+			expect(data.attempts).toBe(2)
+		end)
+
+		it("should validate existence with isDefined", function()
+			local ex = Examiner:new({ Name = "Steve" })
+
+			expect(ex:isDefined("Name")).toBe(true)
+			expect(ex:isDefined("Rank")).toBe(false) -- Should trigger a Dispatch
+		end)
+
+		it("should find deep values within the target", function()
+			local ex = Examiner:new({ 
+				Players = { 
+					User1 = { ID = 500 },
+					User2 = { ID = 999 } 
+				} 
+			})
+
+			local paths = ex:find(999)
+			expect(paths[1]).toBe("root.Players.User2.ID")
+		end)
+	end)
 end
