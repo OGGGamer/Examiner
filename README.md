@@ -25,14 +25,8 @@ Output:
 Example:
 ```
   local Examiner = require(path.to.Examiner)
-  
-  -- Track state over time
   local snapshotId = Examiner.Snapshot(playerData)
-  
-  -- Later, check for mutations
+
   local report, ctx = Examiner.Examine(playerData, nil, { snapshotId = snapshotId })
   print(report)
-  
-  -- Export to external monitoring
-  local payload = ctx:toJSON()
 ```
