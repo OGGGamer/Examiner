@@ -42,7 +42,8 @@ do
     end
 end
 
-local __TESTING_ENABLED__ = _G.__TESTING_ENABLED__ or true
+-- Global flags
+local __TESTING_ENABLED__ = _G.__TESTING_ENABLED__
 
 -- Internal storage
 local Snapshots = {} -- id -> {time, data, source}
@@ -2549,7 +2550,7 @@ local CurrentTest = nil
 ]]
 function Examiner.StartTest(testName, options)
 	if not __TESTING_ENABLED__ then
-		Examiner.Report("Cannot start test: testing is disabled")
+		Examiner.Report(script, "Trying to test when __TESTING_ENABLED__ is false")
 		return
 	end
 	
@@ -2573,7 +2574,7 @@ end
 ]]
 function Examiner.StopTest()
 	if not __TESTING_ENABLED__ then
-		Examiner.Report("Cannot stop test: testing is disabled")
+		Examiner.Report(script, "Trying to test when __TESTING_ENABLED__ is false")
 		return
 	end
 	
@@ -2601,4 +2602,3 @@ return Examiner
 ---------------------------------------------------------------------------------------------
 --                                         EXAMINER                                        --
 ---------------------------------------------------------------------------------------------
-
