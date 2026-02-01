@@ -716,20 +716,64 @@ end
 
 -- #ex-protect
 --[[
-    Protect: Validates a table against a template. 
-    If keys are missing or types are wrong, it Dispatches a report.
+    Protect: 
+    1. Validates a table against a template (your current logic).
+    2. Deploys Nil Protection, Permission Guards, and Instance Proxies.
 ]]
-local ProtectResults = {} -- last protect result
+local ProtectResults = {} 
+
 function Examiner.Protect(tbl, schema)
-	local result = true
-	for key, expectedType in pairs(schema) do
-		if type(tbl[key]) ~= expectedType then
-			result = false
-			break
-		end
-	end
-	ProtectResults[tbl] = {schema=schema, valid=result}
-	return result
+    local isValid = true
+    if schema and type(tbl) == "table" then
+        for key, expectedType in pairs(schema) do
+            if type(tbl[key]) ~= expectedType then
+                isValid = false
+                break
+            end
+        end
+    end
+    
+    ProtectResults[tbl] = {schema = schema, valid = isValid}
+    
+    local protectedTarget = tbl
+
+    if Examiner.Settings.CheckSecurity and HAS_ROBLOX and typeof(tbl) == "Instance" then
+        local realInstance = tbl
+        local proxy = newproxy(true)
+        local mt = getmetatable(proxy)
+
+        mt.__index = function(_, k)
+            local ok, res = pcall(function() return realInstance[k] end)
+            if not ok then
+                Examiner.Dispatch(string.format("Security Violation: Access denied to %s.%s", realInstance.Name, tostring(k)), "error")
+                return nil
+            end
+            
+            if type(res) == "function" then
+                return function(_, ...) return res(realInstance, ...) end
+            end
+            return res
+        end
+
+        mt.__newindex = function(_, k, v)
+            local ok, err = pcall(function() realInstance[k] = v end)
+            if not ok then
+                Examiner.Dispatch(string.format("Security Violation: Access denied to %s.%s", realInstance.Name, tostring(k)), "error")
+            end
+        end
+
+        protectedTarget = proxy
+    end
+
+    if Examiner.Settings.NoNil and type(protectedTarget) == "table" then
+        protectedTarget = Examiner.InterceptNil(protectedTarget)
+    end
+
+    if Examiner.Settings.PurityCheck and type(protectedTarget) == "table" then
+        Examiner.LockPurity(protectedTarget, tostring(tbl))
+    end
+
+    return protectedTarget, isValid
 end
 
 -- #ex-trackinstance
@@ -1818,17 +1862,42 @@ end
 --[[
     Guard: Wraps functions with catch/default/finally chaining.
 ]]
+-- #ex-smartguard
 function Examiner.Guard(fn, ctx)
     local self = makeGuardRecord(fn, ctx)
+    
     task.spawn(function()
-        local ok, res = pcall(function() return fn() end)
-        self.result = res
-        if not ok then
+        local ok, res = pcall(fn)
+        
+        if ok then
+            if res ~= res or res == math.huge or res == -math.huge then
+                local sourceScript = debug.info(fn, "s")
+                local intentional = false
+                
+                if sourceScript and sourceScript:IsA("LuaSourceContainer") then
+                    if sourceScript.Source:find("math%.huge") or sourceScript.Source:find("1/0") then
+                        intentional = true
+                    end
+                end
+                
+                if not intentional then
+                    local mathType = (res ~= res) and "NaN (likely sqrt(-1) or 0/0)" or "Infinity"
+                    Examiner.Dispatch(string.format("Math Poisoning Detected: Result is %s, but no intentional usage found in %s", mathType, sourceScript.Name), "error")
+                    
+                    Examiner.Snapshot({args = ctx, result = res}, {note = "Math Poisoning Audit"})
+                    self.lastErr = "Math Poisoning: " .. mathType
+                end
+            end
+            
+            self.result = res
+        else
             self.lastErr = res
-            -- Auto report
-            Examiner.Examine(nil, res, { source = "Guard failure" })
+            Examiner.Dispatch("Guard execution crash: " .. tostring(res), "error")
         end
+        
+        self.finalized = true
     end)
+    
     return self
 end
 
@@ -2013,6 +2082,16 @@ function Examiner.TableDeepEqual(a, b)
     return true
 end
 
+
+local function createDummy()
+    return setmetatable({}, {
+        __index = function() return createDummy() end,
+        __call = function() return createDummy() end,
+        __tostring = function() return "Examiner_Dummy_Object" end,
+    })
+end
+
+
 -- 68. Nil Protection
 -- #ex-nilprotection
 --[[
@@ -2021,10 +2100,21 @@ end
 function Examiner.NilProtection(enable)
     Examiner.Settings.NoNil = enable
     if enable then
-        -- Override global __index or something, but simplistic: wrap tables
-        Examiner.Dispatch("Nil Protection enabled", "info")
-    else
-        Examiner.Dispatch("Nil Protection disabled", "info")
+        -- We wrap target tables to intercept nil results
+        Examiner.InterceptNil = function(tbl)
+            local mt = getmetatable(tbl) or {}
+            local oldIndex = mt.__index
+            mt.__index = function(t, k)
+                local val = (type(oldIndex) == "function" and oldIndex(t, k)) or (type(oldIndex) == "table" and oldIndex[k]) or rawget(t, k)
+                if val == nil then
+                    Examiner.Dispatch(string.format("Nil access blocked on key: %s", tostring(k)), "warn")
+                    return createDummy()
+                end
+                return val
+            end
+            return setmetatable(tbl, mt)
+        end
+        Examiner.Dispatch("Nil Protection enabled: Call Examiner.InterceptNil(tbl) to shield tables.", "info")
     end
 end
 
@@ -2036,10 +2126,15 @@ end
 function Examiner.PermissionGuard(enable)
     Examiner.Settings.CheckSecurity = enable
     if enable then
-        -- Hook into property access
-        Examiner.Dispatch("Permission Guard enabled", "info")
-    else
-        Examiner.Dispatch("Permission Guard disabled", "info")
+        Examiner.SafeIndex = function(inst, prop)
+            local ok, result = pcall(function() return inst[prop] end)
+            if not ok then
+                Examiner.Dispatch(string.format("Security Violation: Access denied to %s.%s", inst.Name, prop), "error")
+                return nil
+            end
+            return result
+        end
+        Examiner.Dispatch("Permission Guard active: Use Examiner.SafeIndex for restricted properties.", "info")
     end
 end
 
@@ -2051,25 +2146,44 @@ end
 function Examiner.LintingEnforcer(enable)
     Examiner.Settings.StrictTypes = enable
     if enable then
-        -- Add type checking to functions
-        Examiner.Dispatch("Linting Enforcer enabled", "info")
-    else
-        Examiner.Dispatch("Linting Enforcer disabled", "info")
+        Examiner.Enforce = function(fn, argTypes)
+            return function(...)
+                local args = {...}
+                for i, expected in ipairs(argTypes) do
+                    if type(args[i]) ~= expected then
+                        Examiner.Dispatch(string.format("Type Mismatch: Arg %d expected %s, got %s", i, expected, type(args[i])), "error")
+                        error("Examiner Linting Error")
+                    end
+                end
+                return fn(unpack(args))
+            end
+        end
+        Examiner.Dispatch("Linting Enforcer active: Wrap functions with Examiner.Enforce(fn, {types}).", "info")
     end
 end
-
 -- 71. Metatable Lock
 -- #ex-metatablelock
 --[[
     MetatableLock: Alerts if a script's metatable has been modified at runtime.
 ]]
+local PuritySnapshots = {}
+
 function Examiner.MetatableLock(enable)
     Examiner.Settings.PurityCheck = enable
     if enable then
-        -- Monitor metatables
-        Examiner.Dispatch("Metatable Lock enabled", "info")
-    else
-        Examiner.Dispatch("Metatable Lock disabled", "info")
+        Examiner.LockPurity = function(tbl, name)
+            PuritySnapshots[tbl] = tostring(getmetatable(tbl))
+            task.spawn(function()
+                while Examiner.Settings.PurityCheck and PuritySnapshots[tbl] do
+                    if tostring(getmetatable(tbl)) ~= PuritySnapshots[tbl] then
+                        Examiner.Dispatch(string.format("Purity Breach: Metatable for %s was modified!", name or "Table"), "error")
+                        break
+                    end
+                    task.wait(2)
+                end
+            end)
+        end
+        Examiner.Dispatch("Metatable Lock active: Use Examiner.LockPurity(tbl) to monitor integrity.", "info")
     end
 end
 
@@ -2151,9 +2265,13 @@ end
 -- 75. Validate Metatable
 -- #ex-validatemetatable
 --[[
+    <strong>Deprecated</strong>: This deprecated function is a variant of Examiner:AuditMetatable() which should be used instead.
     ValidateMetatable: Checks metatable against template, catches drift.
 ]]
+@deprecated
 function Examiner.ValidateMetatable(target, template)
+    Examiner.Dispatch("DEPRECATION WARNING: Examiner.ValidateMetatable is deprecated. Use Examiner.AuditMetatable.", "warn")
+
     local mt = getmetatable(target)
     if not mt then return false end
     for k,v in pairs(template) do
@@ -2320,20 +2438,24 @@ function Examiner.PollUntil(fn, condition, timeout)
     end)
 end
 
--- 84. Validate Metatable (enhanced)
--- #ex-validatemetatableenhanced
+-- 84. AuditMetatable (Formerly ValidateMetatable Enhanced)
+-- #ex-metatableaudit
 --[[
-    ValidateMetatable: Checks for shadowing in metatable.
+    AuditMetatable: Inspects a proxy for 'shadowing' (where a key exists in both 
+    the table and its metatable), which can cause logic confusion.
 ]]
-function Examiner.ValidateMetatable(proxy)
+function Examiner.AuditMetatable(proxy)
     local mt = getmetatable(proxy)
     if not mt then return true end
+    
+    local foundShadow = false
     for k in pairs(proxy) do
-        if mt[k] then
-            Examiner.Dispatch(string.format("Metatable shadowing detected: %s", k), "warn")
+        if mt[k] ~= nil then
+            foundShadow = true
+            Examiner.Dispatch(string.format("Metatable shadowing detected: Property '%s' exists in both table and metatable.", tostring(k)), "warn")
         end
     end
-    return true
+    return not foundShadow
 end
 
 -- 85. Match
@@ -2653,9 +2775,14 @@ function Examiner.StartTest(testName, options)
         Name = testName,
         StartTime = tick(),
         InitialSnapshot = Examiner.Snapshot(workspace:GetChildren()),
-        StrictGlobalCheck = options.StrictGlobals or false
+        StrictGlobalCheck = options.StrictGlobals or false,
+        InitialGlobals = {}
     }
     
+    for k, v in pairs(_G) do
+        CurrentTest.InitialGlobals[k] = v
+    end
+
     -- If StrictGlobals is on, we lock _G or shared
     if CurrentTest.StrictGlobalCheck then
         Examiner.Dispatch("Test Started: " .. testName .. " [STRICT MODE ON]", "info")
@@ -2690,6 +2817,39 @@ function Examiner.StopTest()
     end
     
     CurrentTest = nil
+end
+
+-- 98. Check Globals
+-- #ex-checkglobals
+--[[
+    CheckGlobals: Audits _G for "Pollution." 
+    Detects if variables were added, changed, or removed during a test.
+]]
+function Examiner.CheckGlobals()
+    if not __TESTING_ENABLED__ then return end
+    if not CurrentTest or not CurrentTest.StrictGlobalCheck then return end
+    
+    local initial = CurrentTest.InitialGlobals or {}
+    local current = {}
+    
+    for k, v in pairs(_G) do
+        current[k] = v
+    end
+    
+    for k, v in pairs(current) do
+        if initial[k] == nil then
+            Examiner.Dispatch(string.format("Global Pollution: New variable '%s' added to _G!", tostring(k)), "warn")
+            Examiner.Snapshot(_G, {note = "pollution detected"})
+        elseif initial[k] ~= v then
+            Examiner.Dispatch(string.format("Global Tampering: '%s' changed in _G!", tostring(k)), "error")
+        end
+    end
+    
+    for k in pairs(initial) do
+        if current[k] == nil then
+            Examiner.Dispatch(string.format("Global Loss: '%s' was removed from _G!", tostring(k)), "warn")
+        end
+    end
 end
 
 -- Export
