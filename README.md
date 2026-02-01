@@ -1,13 +1,10 @@
 # Examiner
-A powerful deep-inspection and debugging toolkit for Roblox. Features live state snapshotting, diffing, informer utilities, and reactive variable observation. Designed for modular project stability.
-For more information go to the [Examiner Documentation](https://ogggamer.github.io/Examiner/)
-
+Examiner A strong toolkit for deep inspection and debugging in Roblox. It offers live state snapshots, diffing, informer utilities, and reactive variable observation. 
+It is aimed at improving project stability.
 # Inspiration
-The examiner module is similiar to the roblox modules [Promise](https://github.com/evaera/roblox-lua-promise/tree/master) and [React](https://github.com/Roblox/react-luau), which are used a lot.
-So, I decided to take a chance to make a module. That instead of catching fatal or promise errors; it examines scripts and debugs info that may be harming the script or interesting types (etc...)
-
-Let's say roblox's API error's or your datastore fails; it will catch that.
-You can see how much this can be useful.
+The examiner module is similar to popular Roblox modules like [Promise](https://github.com/evaera/roblox-lua-promise/tree/master) and [React](https://github.com/Roblox/react-luau). 
+I wanted to create a module that goes beyond finding fatal or promise errors; it inspects scripts and provides debugging information that may harm the script or highlight interesting types. 
+For example, if there are errors in Roblox's API or issues with your datastore, this module will identify them. You can see how useful this could be.
 
 Output:
 ```
