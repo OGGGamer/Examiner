@@ -306,5 +306,117 @@ return function()
 			local paths = ex:find(999)
 			expect(paths[1]).toBe("root.Players.User2.ID")
 		end)
+
+        describe("Math Firewall & Intent Verification", function()  
+            it("should catch silent NaN poisoning (sqrt -1)", function()
+                local caught = false
+                Examiner.Guard(function()
+                    return math.sqrt(-1)
+                end):catch(function(err)
+                    if err:find("NaN") then caught = true end
+                end)
+                
+                task.wait(0.1)
+                expect(caught).toBe(true)
+            end)
+
+            it("should distinguish between accidental and intentional Infinity", function()
+                -- Scenario A: Accidental (1/0)
+                local accidental = Examiner.Guard(function()
+                    local x = 0
+                    return 10 / x
+                end)
+                
+                task.wait(0.1)
+                -- Should have an error logged because 'math.huge' isn't in the closure
+                expect(accidental.lastErr).never.toBe(nil)
+
+                -- Scenario B: Intentional
+                local intentional = Examiner.Guard(function()
+                    return math.huge
+                end)
+                
+                task.wait(0.1)
+                -- Should be successful because 'math.huge' is explicitly mentioned
+                expect(intentional.lastErr).toBe(nil)
+                expect(intentional.result).toBe(math.huge)
+            end)
+        end)
+
+        describe("The Shield Layer", function()
+            it("should prevent 'index nil' with NilProtection", function()
+                Examiner.NilProtection(true)
+                local data = Examiner.InterceptNil({ Score = 10 })
+                
+                -- Accessing a non-existent sub-table
+                local result = data.Achievements.Daily.Status 
+                -- Standard Luau would crash here. Examiner returns a Dummy.
+                expect(tostring(result)).toBe("Examiner_Dummy_Object")
+            end)
+
+            it("should enforce types with LintingEnforcer", function()
+                Examiner.LintingEnforcer(true)
+                local safeAdd = Examiner.Enforce(function(a, b) return a + b end, {"number", "number"})
+                
+                local ok = pcall(function() safeAdd(10, "NotANumber") end)
+                expect(ok).toBe(false) -- Enforcer should have blocked the call
+            end)
+        end)
+
+        describe("The Ultimate Shield: Examiner.Protect", function()
+            it("should survive deep-nil access and type violations simultaneously", function()
+                -- Setup Settings
+                Examiner.NilProtection(true)
+                Examiner.Settings.PurityCheck = true
+                
+                local rawData = {
+                    Stats = { HP = 100 },
+                    Config = { Name = "System" }
+                }
+                
+                -- Apply the Master Shield with a schema
+                local ProtectedData = Examiner.Protect(rawData, {
+                    Stats = { HP = { max = 100, min = 0 } }
+                })
+
+                -- A: Test Nil Protection (Should return Dummy, not crash)
+                local ghostValue = ProtectedData.Stats.Buffs.Movement.Speed
+                expect(tostring(ghostValue)).toBe("Examiner_Dummy_Object")
+
+                -- B: Test Limit/Schema Enforcement
+                ProtectedData.Stats.HP = 999
+                expect(ProtectedData.Stats.HP).toBe(100) -- Capped
+
+                -- C: Test Math Poisoning (From our Guard/Firewall logic)
+                -- If we try to set a protected value to 1/0
+                ProtectedData.Stats.HP = 1/0
+                expect(ProtectedData.Stats.HP).toBe(100) -- Still capped, Warn dispatched
+            end)
+
+            it("should verify permission guarding via SafeIndex", function()
+                Examiner.PermissionGuard(true)
+                local mockScript = Instance.new("Script")
+                
+                -- Accessing 'Source' on a client usually crashes. SafeIndex catches it.
+                local source = Examiner.SafeIndex(mockScript, "Source")
+                expect(source).toBe(nil) -- No crash, just returns nil + Dispatch Error
+            end)
+        end)
+
+        describe("Instance Security Proxy", function()
+            it("should intercept unauthorized property access on Instances", function()
+                Examiner.Settings.CheckSecurity = true
+                local part = Instance.new("Part")
+                local protectedPart = Examiner.Protect(part)
+
+                -- This should work fine
+                expect(protectedPart.Name).toBe("Part")
+
+                -- In a real scenario, accessing protectedPart.Source (if it were a script)
+                -- would return nil and log an Examiner error instead of crashing the thread.
+                local fakeProp = pcall(function() return protectedPart.NonExistentProperty end)
+                expect(fakeProp).toBe(true) -- The pcall inside the proxy handled the error
+            end)
+        end)
 	end)
 end
